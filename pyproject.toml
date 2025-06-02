@@ -1,0 +1,72 @@
+[project]
+name = "bpoe-events-reports"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.115.12",
+    "pendulum>=3.1.0",
+    "pydantic[email]>=2.11.5",
+    "python-decouple>=3.8",
+    "uvicorn>=0.34.3",
+]
+
+[dependency-groups]
+dev = [
+    "codespell>=2.4.1",
+    "httpx>=0.28.1",
+    "mypy>=1.16.0",
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=1.0.0",
+    "pytest-cov>=6.1.1",
+    "ruff>=0.11.12",
+]
+
+[tool.pytest]
+pythonpath = "./src"
+
+[tool.pytest.ini_options]
+addopts = "--junitxml=./result/pytest_result.xml --cov=src --cov-report html:result/html"
+filterwarnings = [
+    "ignore::UserWarning",
+    'ignore:function ham\(\) is deprecated:DeprecationWarning',
+    "ignore:module 'sre_constants' is deprecated:DeprecationWarning",
+    "ignore::SyntaxWarning",
+]
+
+[tool.ruff]
+extend-exclude = []
+line-length = 124
+
+[tool.ruff.format]
+docstring-code-format = true
+docstring-code-line-length = 124
+
+[tool.ruff.lint]
+select = ["E", "F", "UP", "B", "SIM", "I"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["F401", "F841"]
+"test_*.py" = ["F401", "F841"]
+
+[tool.ruff.lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.params.Depends", "fastapi.Query", "fastapi.params.Query"]
+
+[tool.mypy]
+files = ["src"]
+exclude = [
+    "tests/",
+]
+ignore_missing_imports = true
+
+[tool.codespell]
+skip = """
+./.git,
+./.github,
+./tests/.*,
+./temp/.*,
+./log/.*,
+"""
+builtin = "clear"
+quiet-level = 3

@@ -1,0 +1,14 @@
+name: bpoe-events-reports
+services:
+  app:
+    build:
+      context: ../
+      dockerfile: ./docker/Dockerfile
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONPATH=/
+    env_file:
+      - .env
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:8080"
