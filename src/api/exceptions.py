@@ -39,3 +39,7 @@ class CriticalDependencyError(ServerInitError):
         if original_error:
             message += f" Original error: {str(original_error)}"
         super().__init__(code=503, message=message)
+
+class ValidationError(HTTPException):
+    def __init__(self, detail: str):
+        super().__init__(status_code=422, detail=detail)

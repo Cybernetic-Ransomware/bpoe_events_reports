@@ -1,8 +1,9 @@
 import httpx
-from fastapi import APIRouter, Depends
+import pendulum
+from fastapi import APIRouter, Depends, Query
 
-from src.api.dependencies import get_http_client
-from src.api.exceptions import ExternalServiceConnectionError, ExternalServiceNotFoundError, ExternalServiceUnexpectedError
+from src.api.dependencies import fetch_from_service, get_http_client
+from src.api.exceptions import ValidationError
 from src.api.models import EventData, EventSummary
 from src.config.conf_logger import setup_logger
 
@@ -17,32 +18,37 @@ async def healthcheck():
     return {"status": "OK"}
 
 
+
 @router.get("/events/{event_id}/summary", response_model=EventSummary)
-async def get_summary(event_id: int, client: httpx.AsyncClient = Depends(get_http_client)) -> EventSummary:
+async def get_summary(
+    event_id: int,
+    client: httpx.AsyncClient = Depends(get_http_client),
+):
+    data_json = await fetch_from_service(client, f"/internal/events/{event_id}")
+    data = EventData.model_validate(data_json)
+    return EventSummary(summary=data)
+
+
+@router.get("/users/{user_id}/events/summary")
+async def get_user_event_summaries(
+    user_id: int,
+    start_date: str = Query(..., description="Start of the period, format YYYY-MM-DD"),
+    end_date: str = Query(..., description="End of the period, format YYYY-MM-DD"),
+    client: httpx.AsyncClient = Depends(get_http_client),
+):
     try:
-        response = await client.get(f"/internal/events/{event_id}")
-        response.raise_for_status()
-        try:
-            data_json = response.json()
-        except httpx.ConnectError as e:
-            logger.error(f"Failed to decode JSON from internal service for event {event_id}: {e}")
-            raise ExternalServiceUnexpectedError(service_name="DB Handler", original_error=e) from e
+        start = pendulum.parse(start_date, strict=True)
+        end = pendulum.parse(end_date, strict=True)
+    except Exception:
+        raise ValidationError("Invalid date format. Expected format: YYYY-MM-DD") from None
 
-        data = EventData.model_validate(data_json)
-        return EventSummary(summary=data)
+    if start > end:
+        raise ValidationError("start_date must be earlier than or equal to end_date")
 
-    except httpx.HTTPStatusError as e:
-        logger.warning(
-            f"HTTPStatusError from DB Handler for event {event_id}: {e.response.status_code} - {e.response.text}")
-        if e.response.status_code == 404:
-            raise ExternalServiceNotFoundError(resource_name="event data", resource_id=event_id,
-                                               service_name="DB Handler") from e
-        else:
-            raise ExternalServiceUnexpectedError(
-                service_name="DB Handler",
-                original_error=e
-            ) from e
+    url = f"/internal/users/{user_id}/events/summary"
+    params = {"start_date": start.to_date_string(), "end_date": end.to_date_string()}
 
-    except httpx.RequestError as e:
-        logger.error(f"RequestError connecting to DB Handler for event {event_id}: {e}")
-        raise ExternalServiceConnectionError(service_name="DB Handler", original_error=e) from e
+    data_json = await fetch_from_service(client, url, params=params)
+
+    summaries = [EventSummary.model_validate(item) for item in data_json]
+    return {"summaries": summaries}
