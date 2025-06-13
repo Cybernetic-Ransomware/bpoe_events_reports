@@ -156,9 +156,8 @@ cython_debug/
 /temp/
 
 # tests output
-/result/
+/tests/result/
 
 # logs
 /log/*
 /log/*.log
-

@@ -1,1 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="0" failures="0" skipped="0" tests="1" time="1.734" timestamp="2025-06-02T16:26:40.222465+02:00" hostname="CL1044-POZ-AM"><testcase classname="tests.test_main" name="test_docs_endpoint" time="1.324" /></testsuite></testsuites>
+<?xml version="1.0" encoding="utf-8"?><testsuites><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="10.080" timestamp="2025-06-09T15:33:54.297349+02:00" hostname="CL1044-POZ-AM"><testcase classname="" name="tests.api.test_routers" time="0.000"><error message="collection failure">api\test_routers.py:6: in &lt;module&gt;
+    from src.main import app
+..\src\main.py:3: in &lt;module&gt;
+    from src.api.routers import router as api_router
+..\src\api\routers.py:7: in &lt;module&gt;
+    from src.config.conf_logger import setup_logger
+..\src\config\conf_logger.py:4: in &lt;module&gt;
+    from src.config.config import LOGGER_LEVEL
+..\src\config\config.py:15: in &lt;module&gt;
+    DB_HANDLER_URL: str = config("DB_HANDLER_URL")
+..\.venv\Lib\site-packages\decouple.py:248: in __call__
+    return self.config(*args, **kwargs)
+..\.venv\Lib\site-packages\decouple.py:107: in __call__
+    return self.get(*args, **kwargs)
+..\.venv\Lib\site-packages\decouple.py:92: in get
+    raise UndefinedValueError('{} not found. Declare it as envvar or define a default value.'.format(option))
+E   decouple.UndefinedValueError: DB_HANDLER_URL not found. Declare it as envvar or define a default value.</error></testcase></testsuite></testsuites>
