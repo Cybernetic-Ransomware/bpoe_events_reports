@@ -85,3 +85,7 @@ uv run codespell
 ```
 
 ## Useful links and documentation
+- API Gateway microservice: [GitHub](https://github.com/Cybernetic-Ransomware/bpoe-api-gateway.git)
+- Databases handler microservice: [GitHub](https://github.com/Cybernetic-Ransomware/bpoe_events_db_handler)
+- OCR microservice: [GitHub](https://github.com/Cybernetic-Ransomware/bpoe-ocr)
+- Reports microservice: [GitHub](https://github.com/Cybernetic-Ransomware/bpoe_events_reports)
