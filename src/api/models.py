@@ -1,10 +1,29 @@
-from pydantic import BaseModel
+from datetime import datetime
+from uuid import UUID
 
+from pydantic import BaseModel, EmailStr, Field
+
+
+class Location(BaseModel):
+    id: UUID
+    name: str
+    entered_at: datetime
+    exited_at: datetime
+
+class Participant(BaseModel):
+    id: UUID
+    name: str
+    email: EmailStr
 
 class EventData(BaseModel):
-    id: int
+    id: UUID
+    opened_at: datetime
+    closed_at: datetime
     name: str
-    total_cost: float
+    locations: list[Location]
+    participants: list[Participant]
+    owners: list[Participant]
+    total_cost: float | None = Field(default=None)
 
 
 class EventSummary(BaseModel):

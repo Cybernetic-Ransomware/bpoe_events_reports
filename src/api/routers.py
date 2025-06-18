@@ -1,3 +1,5 @@
+from uuid import UUID
+
 import httpx
 import pendulum
 from fastapi import APIRouter, Depends, Query
@@ -21,10 +23,10 @@ async def healthcheck():
 
 @router.get("/events/{event_id}/summary", response_model=EventSummary)
 async def get_summary(
-    event_id: int,
+    event_id: int | UUID,
     client: httpx.AsyncClient = Depends(get_http_client),
 ):
-    data_json = await fetch_from_service(client, f"/internal/events/{event_id}")
+    data_json = await fetch_from_service(client, f"events/{event_id}/summary")
     data = EventData.model_validate(data_json)
     return EventSummary(summary=data)
 
@@ -45,7 +47,7 @@ async def get_user_event_summaries(
     if start > end:
         raise ValidationError("start_date must be earlier than or equal to end_date")
 
-    url = f"/internal/users/{user_id}/events/summary"
+    url = f"users/{user_id}/events/summary"
     params = {"start_date": start.to_date_string(), "end_date": end.to_date_string()}
 
     data_json = await fetch_from_service(client, url, params=params)
