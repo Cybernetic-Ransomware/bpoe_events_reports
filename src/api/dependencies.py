@@ -1,7 +1,9 @@
 from collections.abc import AsyncGenerator
 
 import httpx
+from fastapi import Path
 
+from src.api.examples import summary_event_id_examples
 from src.api.exceptions import (
     ExternalServiceConnectionError,
     ExternalServiceNotFoundError,
@@ -44,3 +46,11 @@ async def fetch_from_service(client: httpx.AsyncClient, url: str, params: dict |
             service_name="DB Handler",
             original_error=e,
         ) from e
+
+def get_event_id():
+    return Path(
+        ...,
+        title="Event ID",
+        description="Unique identifier for the event",
+        openapi_extra={"examples": summary_event_id_examples}
+    )

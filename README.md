@@ -50,7 +50,8 @@
 
 ## Testing
 #### Postman
-- The repository will include a Postman collection with ready-to-import webhook mockers
+The repository include a Postman collection with ready-to-import into Postman Mock Server
+[collection](db_handler.postman_collection.json)
 
 #### Pytest
 ```powershell

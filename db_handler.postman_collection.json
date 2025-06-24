@@ -1,0 +1,240 @@
+{
+	"info": {
+		"_postman_id": "e1c23411-9366-4aad-8074-60d46abeae22",
+		"name": "db_handler",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37255784"
+	},
+	"item": [
+		{
+			"name": "/events/{event_id}/summary",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}/api/events/{event_id}/summary",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"api",
+						"events",
+						"{event_id}",
+						"summary"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Event found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "status_code",
+								"value": "200",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/api/events/123e4567-e89b-12d3-a456-426614174000/summary",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"123e4567-e89b-12d3-a456-426614174000",
+								"summary"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"description": "",
+							"type": "text"
+						}
+					],
+					"cookie": [],
+					"body": "{\r\n  \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\r\n  \"opened_at\": \"2025-06-01T12:00:00Z\",\r\n  \"closed_at\": \"2025-06-05T18:00:00Z\",\r\n  \"name\": \"Konferencja bezpieczeństwa IT\",\r\n  \"locations\": [\r\n    {\r\n      \"id\": \"a77e4567-e89b-12d3-a456-426614170001\",\r\n      \"name\": \"Sala konferencyjna A\",\r\n      \"entered_at\": \"2025-06-01T12:15:00Z\",\r\n      \"exited_at\": \"2025-06-01T18:00:00Z\"\r\n    }\r\n  ],\r\n  \"participants\": [\r\n    {\r\n      \"id\": \"b89e4567-e89b-12d3-a456-426614170002\",\r\n      \"name\": \"Jan Kowalski\",\r\n      \"email\": \"jan@example.com\"\r\n    }\r\n  ],\r\n  \"owners\": [\r\n    {\r\n      \"id\": \"b89e4567-e89b-12d3-a456-426614170002\",\r\n      \"name\": \"Jan Kowalski\",\r\n      \"email\": \"jan@example.com\"\r\n    }\r\n  ],\r\n  \"total_cost\": null\r\n}\r\n"
+				},
+				{
+					"name": "Event not found",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "status_code",
+								"value": "200",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/api/events/abcdef12-3456-7890-abcd-ef1234512345/summary",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"abcdef12-3456-7890-abcd-ef1234512345",
+								"summary"
+							]
+						}
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date"
+						}
+					],
+					"body": "{\r\n  \"detail\": \"Invalid event_id or data missing\"\r\n}\r\n"
+				},
+				{
+					"name": "404",
+					"originalRequest": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "status_code",
+								"value": "404",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}/api/events/abcdef12-3456-7890-abcd-ef1234567890/summary",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"events",
+								"abcdef12-3456-7890-abcd-ef1234567890",
+								"summary"
+							]
+						}
+					},
+					"_postman_previewlanguage": "",
+					"header": [],
+					"cookie": [
+						{
+							"expires": "Invalid Date"
+						}
+					],
+					"body": "{\r\n  \"detail\": \"Invalid event_id or data missing\"\r\n}\r\n"
+				}
+			]
+		},
+		{
+			"name": "/users/{user_id}/events/summary",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "{{url}}//users/{user_id}/events/summary",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"",
+						"users",
+						"{user_id}",
+						"events",
+						"summary"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Default",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}//users/{user_id}/events/summary",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"",
+								"users",
+								"{user_id}",
+								"events",
+								"summary"
+							]
+						}
+					},
+					"code": 200,
+					"_postman_previewlanguage": null,
+					"header": null,
+					"cookie": [],
+					"body": ""
+				}
+			]
+		},
+		{
+			"name": "Get internal event by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://mock-server-name.mock.pstmn.io/internal/events/123e4567-e89b-12d3-a456-426614174000",
+					"protocol": "https",
+					"host": [
+						"mock-server-name",
+						"mock",
+						"pstmn",
+						"io"
+					],
+					"path": [
+						"internal",
+						"events",
+						"123e4567-e89b-12d3-a456-426614174000"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "https://2332da1b-6c5d-4e49-93ce-19f375cb7011.mock.pstmn.io"
+		}
+	]
+}

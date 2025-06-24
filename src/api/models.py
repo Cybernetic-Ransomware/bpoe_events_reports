@@ -25,6 +25,9 @@ class EventData(BaseModel):
     owners: list[Participant]
     total_cost: float | None = Field(default=None)
 
+class EventNotFound(BaseModel):
+    detail: str
+
 
 class EventSummary(BaseModel):
     summary: EventData

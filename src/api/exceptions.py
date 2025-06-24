@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from fastapi import HTTPException
 
 
@@ -42,4 +44,9 @@ class CriticalDependencyError(ServerInitError):
 
 class ValidationError(HTTPException):
     def __init__(self, detail: str):
-        super().__init__(status_code=422, detail=detail)
+        super().__init__(status_code=422, detail=detail)\
+
+class ValueNotFoundError(HTTPException):
+    def __init__(self, event_id: int | UUID):
+        detail = f"Event with ID '{str(event_id)}' not found or data missing"
+        super().__init__(status_code=404, detail=detail)

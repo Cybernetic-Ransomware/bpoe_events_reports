@@ -3,10 +3,11 @@ from uuid import UUID
 import httpx
 import pendulum
 from fastapi import APIRouter, Depends, Query
+from pydantic import ValidationError as PydanticValidationError
 
-from src.api.dependencies import fetch_from_service, get_http_client
-from src.api.exceptions import ValidationError
-from src.api.models import EventData, EventSummary
+from src.api.dependencies import fetch_from_service, get_event_id, get_http_client
+from src.api.exceptions import ExternalServiceUnexpectedError, ValidationError, ValueNotFoundError
+from src.api.models import EventData, EventNotFound, EventSummary
 from src.config.conf_logger import setup_logger
 
 logger = setup_logger(__name__, "api")
@@ -20,15 +21,28 @@ async def healthcheck():
     return {"status": "OK"}
 
 
-
 @router.get("/events/{event_id}/summary", response_model=EventSummary)
 async def get_summary(
-    event_id: int | UUID,
-    client: httpx.AsyncClient = Depends(get_http_client),
+        event_id: UUID = Depends(get_event_id),
+        client: httpx.AsyncClient = Depends(get_http_client),
 ):
-    data_json = await fetch_from_service(client, f"events/{event_id}/summary")
-    data = EventData.model_validate(data_json)
-    return EventSummary(summary=data)
+    response = await client.get(f"events/{event_id}/summary")
+    if response.status_code != 200:
+        raise ExternalServiceUnexpectedError(service_name="DB Handler")
+
+    data_json = response.json()
+    try:
+        data = EventData.model_validate(data_json)
+        return EventSummary(summary=data)
+
+    except PydanticValidationError as e:
+        try:
+            EventNotFound.model_validate(data_json)
+            raise ValueNotFoundError(event_id=event_id) from e
+        except ValidationError:
+            raise ExternalServiceUnexpectedError(
+                service_name="DB Handler", original_error=e
+            ) from e
 
 
 @router.get("/users/{user_id}/events/summary")
