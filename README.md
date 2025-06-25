@@ -1,22 +1,26 @@
-# Reposts service for BPOE app
-
+# Reports service for BPOE app
 
 ## Overview
-
+This service generates various types of event reports based on user-defined filters.
+It operates as a standalone microservice in the BPOE system architecture.
 
 ## Features
-
+- Exposes REST API for on-demand report generation,
+- Generates reports based on custom filters and parameters,
+- Communicates with the `db_handler` microservice via REST,
+- Validates input using Pydantic models,
+- Restricts access to API gateway only,
+- Supports multiple extensible report types.
 
 ## Requirements
 - Python >=3.13.3 with UV package manager
 - Docker Desktop / Docker + Compose
 
-
 ## Getting Started (Windows)
 ### Deploy
 1. Clone the repository:
       ```powershell
-      git clone https://github.com/Cybernetic-Ransomware/___.git
+      git clone https://github.com/Cybernetic-Ransomware/bpoe_events_reports.git
       ```
 2. Set .env file based on the template.
 3. Run using Docker:
@@ -26,7 +30,7 @@
 ### Dev-instance
 1. Clone the repository:
       ```powershell
-      git clone https://github.com/Cybernetic-Ransomware/___.git
+      git clone https://github.com/Cybernetic-Ransomware/bpoe_events_reports.git
       ```
 2. Set .env file based on the template.
 3. Install UV:
@@ -50,7 +54,7 @@
 
 ## Testing
 #### Postman
-The repository include a Postman collection with ready-to-import into Postman Mock Server
+This repository includes a Postman collection ready for import into a Postman Mock Server.
 [collection](db_handler.postman_collection.json)
 
 #### Pytest
