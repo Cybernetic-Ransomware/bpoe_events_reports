@@ -101,14 +101,23 @@
 							]
 						}
 					},
-					"_postman_previewlanguage": "",
-					"header": [],
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
 					"cookie": [
 						{
 							"expires": "Invalid Date"
 						}
 					],
-					"body": "{\r\n  \"detail\": \"Invalid event_id or data missing\"\r\n}\r\n"
+					"body": "{\n    \"detail\": \"Invalid event_id or data missing\"\n}"
 				},
 				{
 					"name": "404",
@@ -138,14 +147,23 @@
 							]
 						}
 					},
-					"_postman_previewlanguage": "",
-					"header": [],
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json",
+							"name": "Content-Type",
+							"description": "",
+							"type": "text"
+						}
+					],
 					"cookie": [
 						{
 							"expires": "Invalid Date"
 						}
 					],
-					"body": "{\r\n  \"detail\": \"Invalid event_id or data missing\"\r\n}\r\n"
+					"body": "{\n    \"detail\": \"Invalid event_id or data missing\"\n}"
 				}
 			]
 		},
