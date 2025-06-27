@@ -1,8 +1,9 @@
 # Reports service for BPOE app
-
-## Overview
 This service generates various types of event reports based on user-defined filters.
 It operates as a standalone microservice in the BPOE system architecture.
+
+## Overview
+The purpose of this project is to build a reports and summaries handling microservice.
 
 ## Features
 - Exposes REST API for on-demand report generation,
