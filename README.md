@@ -52,6 +52,9 @@ It operates as a standalone microservice in the BPOE system architecture.
       uv run uvicorn src.main:app --host 0.0.0.0 --port 8080 --reload
       ```
 
+Alternatively, after step `3`, you can use the `.bat` or `.sh` init script provided.
+
+
 ## Testing
 #### Postman
 This repository includes a Postman collection ready for import into a Postman Mock Server.
