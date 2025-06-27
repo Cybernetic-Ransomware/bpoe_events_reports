@@ -55,7 +55,7 @@ It operates as a standalone microservice in the BPOE system architecture.
 ## Testing
 #### Postman
 This repository includes a Postman collection ready for import into a Postman Mock Server.
-[collection](db_handler.postman_collection.json)
+[collection](docs/queries/db_handler.postman_collection.json)
 
 #### Pytest
 ```powershell

@@ -161,3 +161,6 @@ cython_debug/
 # logs
 /log/*
 /log/*.log
+
+#pycharm configuration
+/.run/

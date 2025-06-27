@@ -26,6 +26,12 @@ async def get_summary(
         event_id: UUID = Depends(get_event_id),
         client: httpx.AsyncClient = Depends(get_http_client),
 ):
+    """
+
+    :param event_id:
+    :param client:
+    :return:
+    """
     response = await client.get(f"events/{event_id}/summary")
     if response.status_code != 200:
         raise ExternalServiceUnexpectedError(service_name="DB Handler")
