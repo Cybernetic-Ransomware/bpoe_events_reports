@@ -31,3 +31,6 @@ class EventNotFound(BaseModel):
 
 class EventSummary(BaseModel):
     summary: EventData
+
+class EventSummaryList(BaseModel):
+    summaries: list[EventSummary]

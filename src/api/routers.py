@@ -6,8 +6,14 @@ from fastapi import APIRouter, Depends, Query
 from pydantic import ValidationError as PydanticValidationError
 
 from src.api.dependencies import fetch_from_service, get_event_id, get_http_client
-from src.api.exceptions import ExternalServiceUnexpectedError, ValidationError, ValueNotFoundError
-from src.api.models import EventData, EventNotFound, EventSummary
+from src.api.exceptions import (
+    ExternalServiceUnexpectedError,
+    InvalidDateFormatError,
+    InvalidDateRangeError,
+    ValidationError,
+    ValueNotFoundError,
+)
+from src.api.models import EventData, EventNotFound, EventSummary, EventSummaryList
 from src.config.conf_logger import setup_logger
 
 logger = setup_logger(__name__, "api")
@@ -27,19 +33,20 @@ async def get_summary(
         client: httpx.AsyncClient = Depends(get_http_client),
 ):
     """
-    Retrieve and return a validated summary of the event with the given ID.
+    Retrieve and return validated event summaries for the given user within the specified date range.
 
-    Data is fetched from the DB Handler service and validated against the EventData model.
-    If the service responds with status 200 but the payload indicates the event was not found,
-    a ValueNotFoundError is raised. If the response structure is invalid or unexpected,
-    an ExternalServiceUnexpectedError is raised.
+    Data is fetched from the DB Handler service and validated against the EventSummary model.
+    If the date format is invalid or the range is illogical (start > end), a ValidationError is raised.
+    If the response structure is invalid or unexpected, an ExternalServiceUnexpectedError is raised.
 
     Parameters:
-    - event_id: Event UUID (extracted from the request path).
+    - user_id: User ID (extracted from the request path).
+    - start_date: Start of the date range (format: YYYY-MM-DD).
+    - end_date: End of the date range (format: YYYY-MM-DD).
     - client: HTTP client used for communication with the DB Handler (injected dependency).
 
     Returns:
-    - An EventSummary object wrapping the validated EventData.
+    - An EventSummaryList object wrapping a list of validated EventSummary instances.
     """
     response = await client.get(f"events/{event_id}/summary")
     if response.status_code != 200:
@@ -60,21 +67,22 @@ async def get_summary(
             ) from e
 
 
-@router.get("/users/{user_id}/events/summary")
+@router.get("/users/{user_id}/events/summary", response_model=EventSummaryList)
 async def get_user_event_summaries(
     user_id: int,
     start_date: str = Query(..., description="Start of the period, format YYYY-MM-DD"),
     end_date: str = Query(..., description="End of the period, format YYYY-MM-DD"),
     client: httpx.AsyncClient = Depends(get_http_client),
 ):
+
     try:
         start = pendulum.parse(start_date, strict=True)
         end = pendulum.parse(end_date, strict=True)
-    except Exception:
-        raise ValidationError("Invalid date format. Expected format: YYYY-MM-DD") from None
+    except Exception as e:
+        raise InvalidDateFormatError() from e
 
     if start > end:
-        raise ValidationError("start_date must be earlier than or equal to end_date")
+        raise InvalidDateRangeError()
 
     url = f"users/{user_id}/events/summary"
     params = {"start_date": start.to_date_string(), "end_date": end.to_date_string()}
@@ -82,4 +90,4 @@ async def get_user_event_summaries(
     data_json = await fetch_from_service(client, url, params=params)
 
     summaries = [EventSummary.model_validate(item) for item in data_json]
-    return {"summaries": summaries}
+    return EventSummaryList(summaries=summaries)
