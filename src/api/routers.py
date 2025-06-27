@@ -27,10 +27,19 @@ async def get_summary(
         client: httpx.AsyncClient = Depends(get_http_client),
 ):
     """
+    Retrieve and return a validated summary of the event with the given ID.
 
-    :param event_id:
-    :param client:
-    :return:
+    Data is fetched from the DB Handler service and validated against the EventData model.
+    If the service responds with status 200 but the payload indicates the event was not found,
+    a ValueNotFoundError is raised. If the response structure is invalid or unexpected,
+    an ExternalServiceUnexpectedError is raised.
+
+    Parameters:
+    - event_id: Event UUID (extracted from the request path).
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - An EventSummary object wrapping the validated EventData.
     """
     response = await client.get(f"events/{event_id}/summary")
     if response.status_code != 200:
