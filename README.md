@@ -1,22 +1,27 @@
-# Reposts service for BPOE app
-
+# Reports service for BPOE app
+This service generates various types of event reports based on user-defined filters.
+It operates as a standalone microservice in the BPOE system architecture.
 
 ## Overview
-
+The purpose of this project is to build a reports and summaries handling microservice.
 
 ## Features
-
+- Exposes REST API for on-demand report generation,
+- Generates reports based on custom filters and parameters,
+- Communicates with the `db_handler` microservice via REST,
+- Validates input using Pydantic models,
+- Restricts access to API gateway only,
+- Supports multiple extensible report types.
 
 ## Requirements
 - Python >=3.13.3 with UV package manager
 - Docker Desktop / Docker + Compose
 
-
 ## Getting Started (Windows)
 ### Deploy
 1. Clone the repository:
       ```powershell
-      git clone https://github.com/Cybernetic-Ransomware/___.git
+      git clone https://github.com/Cybernetic-Ransomware/bpoe_events_reports.git
       ```
 2. Set .env file based on the template.
 3. Run using Docker:
@@ -26,7 +31,7 @@
 ### Dev-instance
 1. Clone the repository:
       ```powershell
-      git clone https://github.com/Cybernetic-Ransomware/___.git
+      git clone https://github.com/Cybernetic-Ransomware/bpoe_events_reports.git
       ```
 2. Set .env file based on the template.
 3. Install UV:
@@ -48,9 +53,13 @@
       uv run uvicorn src.main:app --host 0.0.0.0 --port 8080 --reload
       ```
 
+Alternatively, after step `3`, you can use the `.bat` or `.sh` init script provided.
+
+
 ## Testing
 #### Postman
-- The repository will include a Postman collection with ready-to-import webhook mockers
+This repository includes a Postman collection ready for import into a Postman Mock Server.
+[collection](docs/queries/db_handler.postman_collection.json)
 
 #### Pytest
 ```powershell
@@ -85,3 +94,7 @@ uv run codespell
 ```
 
 ## Useful links and documentation
+- API Gateway microservice: [GitHub](https://github.com/Cybernetic-Ransomware/bpoe-api-gateway.git)
+- Databases handler microservice: [GitHub](https://github.com/Cybernetic-Ransomware/bpoe_events_db_handler)
+- OCR microservice: [GitHub](https://github.com/Cybernetic-Ransomware/bpoe-ocr)
+- Reports microservice: [GitHub](https://github.com/Cybernetic-Ransomware/bpoe_events_reports)
