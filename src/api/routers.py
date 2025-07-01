@@ -2,14 +2,12 @@ from uuid import UUID
 
 import httpx
 import pendulum
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends
 from pydantic import ValidationError as PydanticValidationError
 
-from src.api.dependencies import fetch_from_service, get_event_id, get_http_client
+from src.api.dependencies import fetch_from_service, get_date_range, get_event_id, get_http_client
 from src.api.exceptions import (
     ExternalServiceUnexpectedError,
-    InvalidDateFormatError,
-    InvalidDateRangeError,
     ValidationError,
     ValueNotFoundError,
 )
@@ -70,19 +68,10 @@ async def get_summary(
 @router.get("/users/{user_id}/events/summary", response_model=EventSummaryList)
 async def get_user_event_summaries(
     user_id: int,
-    start_date: str = Query(..., description="Start of the period, format YYYY-MM-DD"),
-    end_date: str = Query(..., description="End of the period, format YYYY-MM-DD"),
+    date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
     client: httpx.AsyncClient = Depends(get_http_client),
 ):
-
-    try:
-        start = pendulum.parse(start_date, strict=True)
-        end = pendulum.parse(end_date, strict=True)
-    except Exception as e:
-        raise InvalidDateFormatError() from e
-
-    if start > end:
-        raise InvalidDateRangeError()
+    start, end = date_range
 
     url = f"users/{user_id}/events/summary"
     params = {"start_date": start.to_date_string(), "end_date": end.to_date_string()}
@@ -91,3 +80,94 @@ async def get_user_event_summaries(
 
     summaries = [EventSummary.model_validate(item) for item in data_json]
     return EventSummaryList(summaries=summaries)
+
+
+@router.get("/events/{event_id}/costs/details")
+async def get_event_cost_details(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
+    """Return detailed cost breakdown for a specific event."""
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/users/{user_id}/events/financial-summary")
+async def get_user_financial_summary(
+        user_id: int,
+        date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
+        client: httpx.AsyncClient = Depends(get_http_client)
+):
+    """Return financial summary of user's events in a given date range."""
+    start, end = date_range
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/events/{event_id}/participants/invited")
+async def get_invited_participants(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
+    """Return a list of participants invited to an event."""
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/events/{event_id}/participants/accepted")
+async def get_accepted_participants(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
+    """Return participants who accepted the invitation and their settlement declarations."""
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/events/{event_id}/locations")
+async def get_event_locations(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
+    """Return locations and timestamps associated with a specific event."""
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/events/{event_id}/participants/settlement-status")
+async def get_participant_settlement_status(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
+    """Return participants and their declared settlement shares and status."""
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/users/{user_id}/events/owned")
+async def get_owned_events(
+        user_id: int,
+        date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
+        client: httpx.AsyncClient = Depends(get_http_client)
+):
+    """Return events owned by a user within a date range."""
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/users/{user_id}/events/unsettled")
+async def get_unsettled_events(
+        user_id: int,
+        date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
+        client: httpx.AsyncClient = Depends(get_http_client)
+):
+    """Return events with incomplete settlements for a user."""
+    start, end = date_range
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/users/{user_id}/balance-details")
+async def get_user_balance_details(
+        user_id: int,
+        date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
+        client: httpx.AsyncClient = Depends(get_http_client)
+):
+    """Return detailed balance report for the user."""
+    start, end = date_range
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/users/{user_id}/pending-invites")
+async def get_user_pending_invites(user_id: int, client: httpx.AsyncClient = Depends(get_http_client)):
+    """Return events to which the user was invited but hasn't responded."""
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/users/{user_id}/debts-summary")
+async def get_user_debts_summary(user_id: int, client: httpx.AsyncClient = Depends(get_http_client)):
+    """Return overall debt and credit summary for a user."""
+    raise NotImplementedError("Endpoint not implemented yet.")
+
+
+@router.get("/reports/validation-issues")
+async def get_reports_validation_issues(client: httpx.AsyncClient = Depends(get_http_client)):
+    """Return a report of data issues: missing declarations, mismatched totals, etc."""
+    raise NotImplementedError("Endpoint not implemented yet.")

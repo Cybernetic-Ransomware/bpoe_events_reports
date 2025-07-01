@@ -1,13 +1,17 @@
 from collections.abc import AsyncGenerator
+from typing import Annotated, cast
 
 import httpx
-from fastapi import Path
+import pendulum
+from fastapi import Path, Query
 
 from src.api.examples import summary_event_id_examples
 from src.api.exceptions import (
     ExternalServiceConnectionError,
     ExternalServiceNotFoundError,
     ExternalServiceUnexpectedError,
+    InvalidDateFormatError,
+    InvalidDateRangeError,
 )
 from src.config.config import DB_HANDLER_URL
 
@@ -54,3 +58,27 @@ def get_event_id():
         description="Unique identifier for the event",
         openapi_extra={"examples": summary_event_id_examples}
     )
+
+def get_date_range(
+    start_date: Annotated[str, Query(..., description="Start datetime in ISO 8601 format, e.g. 2025-07-01T15:00:00")],
+    end_date: Annotated[str, Query(..., description="End datetime in ISO 8601 format, e.g. 2025-07-10T18:00:00")],
+) -> tuple[pendulum.DateTime, pendulum.DateTime]:
+
+    try:
+        start = pendulum.parse(start_date, strict=True)
+        end = pendulum.parse(end_date, strict=True)
+
+        start = cast(pendulum.DateTime, start)
+        end = cast(pendulum.DateTime, end)
+
+        start = start.in_timezone('UTC')
+        end = end.in_timezone('UTC')
+
+    except Exception as e:
+        raise InvalidDateFormatError() from e
+
+    if start > end:
+        raise InvalidDateRangeError()
+
+    return start, end
+
