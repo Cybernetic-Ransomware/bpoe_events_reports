@@ -23,7 +23,6 @@ async def get_http_client() -> AsyncGenerator[httpx.AsyncClient]:
 async def fetch_from_service(client: httpx.AsyncClient, url: str, params: dict | None = None):
     try:
         response = await client.get(url, params=params)
-        print("Request URL:", response.request.url, flush=True)
         response.raise_for_status()
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 404:

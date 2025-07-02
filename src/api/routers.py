@@ -11,7 +11,14 @@ from src.api.exceptions import (
     ValidationError,
     ValueNotFoundError,
 )
-from src.api.models import EventData, EventNotFound, EventSummary, EventSummaryList
+from src.api.models import (
+    EventData,
+    EventNotFound,
+    EventSummary,
+    EventSummaryList,
+    EventTransactionItem,
+    EventTransactionList,
+)
 from src.config.conf_logger import setup_logger
 
 logger = setup_logger(__name__, "api")
@@ -100,8 +107,24 @@ async def get_user_event_summaries(
 
 @router.get("/events/{event_id}/costs/details")
 async def get_event_cost_details(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
-    """Return detailed cost breakdown for a specific event."""
-    raise NotImplementedError("Endpoint not implemented yet.")
+    """
+    Retrieve and return a list of validated cost breakdown for a specific event.
+
+    Data is fetched from the DB Handler service and parsed into EventTransactionItem models.
+    If the response structure is invalid or unexpected, an ExternalServiceUnexpectedError is raised.
+
+    Parameters:
+    - event_id: UUID of the event to retrieve cost details for.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - EventTransactionList object containing validated cost transactions.
+    """
+    url = f"events/{event_id}/costs/details"
+    data_json = await fetch_from_service(client, url)
+
+    transactions = [EventTransactionItem.model_validate(item) for item in data_json]
+    return EventTransactionList(items=transactions)
 
 
 @router.get("/users/{user_id}/events/financial-summary")
