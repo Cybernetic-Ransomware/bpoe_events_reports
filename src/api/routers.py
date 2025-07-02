@@ -71,6 +71,22 @@ async def get_user_event_summaries(
     date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
     client: httpx.AsyncClient = Depends(get_http_client),
 ):
+    """
+    Retrieve and return a list of validated event summaries for a given user within a specified date range.
+
+    Data is fetched from the DB Handler service using the provided user ID and date range parameters.
+    Each item is validated against the EventSummary model. If the date format is invalid or the range is illogical
+    (e.g. start > end), a ValidationError is raised. If the structure of the response is invalid or unexpected,
+    an ExternalServiceUnexpectedError is raised.
+
+    Parameters:
+    - user_id: ID of the user whose event summaries are to be fetched.
+    - date_range: Tuple containing the start and end date as Pendulum DateTime objects.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - An EventSummaryList object wrapping a list of validated EventSummary instances.
+    """
     start, end = date_range
 
     url = f"users/{user_id}/events/summary"
