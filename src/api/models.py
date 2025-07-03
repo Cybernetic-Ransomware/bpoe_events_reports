@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from uuid import UUID
 
@@ -48,3 +48,21 @@ class EventTransactionItem(BaseModel):
 
 class EventTransactionList(BaseModel):
     items: list[EventTransactionItem]
+
+class DateRange(BaseModel):
+    start: date
+    end: date
+
+class EventFinancialBreakdown(BaseModel):
+    event_id: int
+    event_name: str
+    total_paid: Decimal
+    total_received: Decimal
+
+class UserFinancialSummary(BaseModel):
+    total_paid: Decimal
+    total_received: Decimal
+    currency: str = "PLN"
+    event_count: int
+    time_range: DateRange
+    details: list[EventFinancialBreakdown] = []

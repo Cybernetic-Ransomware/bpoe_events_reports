@@ -18,6 +18,7 @@ from src.api.models import (
     EventSummaryList,
     EventTransactionItem,
     EventTransactionList,
+    UserFinancialSummary,
 )
 from src.config.conf_logger import setup_logger
 
@@ -133,9 +134,28 @@ async def get_user_financial_summary(
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
         client: httpx.AsyncClient = Depends(get_http_client)
 ):
-    """Return financial summary of user's events in a given date range."""
+    """
+    Retrieve and return a financial summary for all events of a specific user within a given date range.
+
+    Data is fetched from the DB Handler service and validated against the UserFinancialSummary model.
+    If the structure of the response is invalid or unexpected, an ExternalServiceUnexpectedError is raised.
+
+    Parameters:
+    - user_id: ID of the user whose financial summary is to be fetched.
+    - date_range: Tuple containing the start and end date as Pendulum DateTime objects.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - A validated UserFinancialSummary object.
+    """
     start, end = date_range
-    raise NotImplementedError("Endpoint not implemented yet.")
+    url = f"users/{user_id}/events/financial-summary"
+    params = {"start_date": start.to_date_string(), "end_date": end.to_date_string()}
+
+    data_json = await fetch_from_service(client, url, params=params)
+
+    summary = UserFinancialSummary.model_validate(data_json)
+    return summary
 
 
 @router.get("/events/{event_id}/participants/invited")
