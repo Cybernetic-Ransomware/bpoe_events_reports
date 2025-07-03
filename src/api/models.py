@@ -66,3 +66,22 @@ class UserFinancialSummary(BaseModel):
     event_count: int
     time_range: DateRange
     details: list[EventFinancialBreakdown] = []
+
+class InvitedParticipant(BaseModel):
+    id: UUID
+    name: str
+    email: EmailStr
+
+class AcceptedParticipant(BaseModel):
+    id: UUID
+    name: str
+    email: EmailStr
+    accepted_at: datetime
+    settled: bool
+    settled_at: datetime | None
+
+class InvitedParticipantList(BaseModel):
+    participants: list[InvitedParticipant]
+
+class AcceptedParticipantList(BaseModel):
+    participants: list[AcceptedParticipant]

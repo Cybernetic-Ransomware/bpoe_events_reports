@@ -12,12 +12,16 @@ from src.api.exceptions import (
     ValueNotFoundError,
 )
 from src.api.models import (
+    AcceptedParticipant,
+    AcceptedParticipantList,
     EventData,
     EventNotFound,
     EventSummary,
     EventSummaryList,
     EventTransactionItem,
     EventTransactionList,
+    InvitedParticipant,
+    InvitedParticipantList,
     UserFinancialSummary,
 )
 from src.config.conf_logger import setup_logger
@@ -158,16 +162,54 @@ async def get_user_financial_summary(
     return summary
 
 
-@router.get("/events/{event_id}/participants/invited")
-async def get_invited_participants(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
-    """Return a list of participants invited to an event."""
-    raise NotImplementedError("Endpoint not implemented yet.")
+@router.get("/events/{event_id}/participants/invited", response_model=InvitedParticipantList)
+async def get_invited_participants(
+    event_id: UUID,
+    client: httpx.AsyncClient = Depends(get_http_client)
+):
+    """
+    Retrieve and return a list of participants invited to a specific event.
+
+    Data is fetched from the DB Handler service and validated against the InvitedParticipant model.
+    If the structure of the response is invalid or unexpected, an ExternalServiceUnexpectedError is raised.
+
+    Parameters:
+    - event_id: UUID of the event to fetch invited participants for.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - An InvitedParticipantList object containing validated invited participants.
+    """
+    url = f"events/{event_id}/participants/invited"
+    data_json = await fetch_from_service(client, url)
+
+    participants = [InvitedParticipant.model_validate(item) for item in data_json]
+    return InvitedParticipantList(participants=participants)
 
 
-@router.get("/events/{event_id}/participants/accepted")
-async def get_accepted_participants(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
-    """Return participants who accepted the invitation and their settlement declarations."""
-    raise NotImplementedError("Endpoint not implemented yet.")
+@router.get("/events/{event_id}/participants/accepted", response_model=AcceptedParticipantList)
+async def get_accepted_participants(
+    event_id: UUID,
+    client: httpx.AsyncClient = Depends(get_http_client)
+):
+    """
+    Retrieve and return a list of participants who accepted the invitation and their settlement declarations.
+
+    Data is fetched from the DB Handler service and validated against the AcceptedParticipant model.
+    If the structure of the response is invalid or unexpected, an ExternalServiceUnexpectedError is raised.
+
+    Parameters:
+    - event_id: UUID of the event to fetch accepted participants for.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - An AcceptedParticipantList object containing validated accepted participants with settlement info.
+    """
+    url = f"events/{event_id}/participants/accepted"
+    data_json = await fetch_from_service(client, url)
+
+    participants = [AcceptedParticipant.model_validate(item) for item in data_json]
+    return AcceptedParticipantList(participants=participants)
 
 
 @router.get("/events/{event_id}/locations")
