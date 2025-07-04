@@ -220,7 +220,7 @@ async def get_event_locations(
     client: httpx.AsyncClient = Depends(get_http_client)
 ):
     """
-    Retrieve and return locations associated with a specific event, including entry and exit timestamps.
+    Retrieve and return locations associated with a specific event, including coordinates, entry and exit timestamps.
 
     Data is fetched from the DB Handler service and validated against the EventLocationOut model.
     If the structure of the response is invalid or unexpected, an ExternalServiceUnexpectedError is raised.
