@@ -11,6 +11,10 @@ from src.core.models.events import (
     UserOwnedEventsResponse,
     UserUnsettledEventsResponse,
 )
+from src.core.models.inconsistencies import (
+    ValidationIssue,
+    ValidationIssuesReport,
+)
 from src.core.models.participants import (
     AcceptedParticipant,
     AcceptedParticipantList,
@@ -43,4 +47,6 @@ __all__ = [
     "UserOwnedEventsResponse",
     "UserUnsettledEventsResponse",
     "UserPendingInvitesResponse",
+    "ValidationIssuesReport",
+    "ValidationIssue",
 ]

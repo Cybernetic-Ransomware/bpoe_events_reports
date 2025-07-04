@@ -42,9 +42,13 @@ class CriticalDependencyError(ServerInitError):
             message += f" Original error: {str(original_error)}"
         super().__init__(code=503, message=message)
 
+class InvalidDiagnosticsTokenError(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=403, detail="Invalid diagnostics token")
+
 class ValidationError(HTTPException):
     def __init__(self, detail: str):
-        super().__init__(status_code=422, detail=detail)\
+        super().__init__(status_code=422, detail=detail)
 
 class InvalidDateFormatError(ValidationError):
     def __init__(self, field: str = "date", expected_format: str = "YYYY-MM-DD"):

@@ -5,13 +5,13 @@ import pendulum
 from fastapi import APIRouter, Depends
 from pydantic import ValidationError as PydanticValidationError
 
-from src.api.dependencies import fetch_from_service, get_date_range, get_event_id, get_http_client
+from src.api.dependencies import fetch_from_service, get_date_range, get_event_id, get_http_client, verify_diagnostics_token
 from src.api.exceptions import (
     ExternalServiceUnexpectedError,
     ValidationError,
     ValueNotFoundError,
 )
-from src.config.conf_logger import setup_logger
+from src.config.conf_logger import parse_validation_issues_from_log, setup_logger
 from src.core import models
 
 logger = setup_logger(__name__, "api")
@@ -342,7 +342,23 @@ async def get_user_debts_summary(user_id: int, client: httpx.AsyncClient = Depen
     raise NotImplementedError("Endpoint not implemented yet.")
 
 
-@router.get("/reports/validation-issues")
-async def get_reports_validation_issues(client: httpx.AsyncClient = Depends(get_http_client)):
-    """Return a report of data issues: missing declarations, mismatched totals, etc."""
-    raise NotImplementedError("Endpoint not implemented yet.")
+@router.get("/reports/validation-issues", include_in_schema=False)
+async def get_reports_validation_issues(
+    admin_token: str = Depends(verify_diagnostics_token),
+):
+    """
+    Retrieve a system-wide report of validation issues across all events.
+
+    This is a protected diagnostic endpoint that requires a valid admin diagnostics token
+    for access, provided via dependency injection.
+
+    The report includes information about inconsistent or incomplete data, such as:
+    - Participants with missing declarations
+    - Events with mismatched totals
+    - Settlement records with anomalies
+    - Orphaned transactions or participant entries
+
+    Note: This endpoint is intended for internal diagnostic use and is excluded from public API schema.
+    """
+    issues = parse_validation_issues_from_log()
+    return {"issues": [issue.model_dump() for issue in issues]}

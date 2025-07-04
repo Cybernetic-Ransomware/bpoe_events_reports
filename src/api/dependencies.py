@@ -3,7 +3,7 @@ from typing import Annotated, cast
 
 import httpx
 import pendulum
-from fastapi import Path, Query
+from fastapi import Header, Path, Query
 
 from src.api.examples import summary_event_id_examples
 from src.api.exceptions import (
@@ -12,8 +12,14 @@ from src.api.exceptions import (
     ExternalServiceUnexpectedError,
     InvalidDateFormatError,
     InvalidDateRangeError,
+    InvalidDiagnosticsTokenError,
 )
-from src.config.config import DB_HANDLER_URL
+from src.config.config import DB_HANDLER_URL, INTERNAL_DIAGNOSTICS_TOKEN
+
+
+async def verify_diagnostics_token(x_internal_token: str = Header(..., alias="X-Internal-Token")):
+    if x_internal_token != INTERNAL_DIAGNOSTICS_TOKEN:
+        raise InvalidDiagnosticsTokenError()
 
 
 async def get_http_client() -> AsyncGenerator[httpx.AsyncClient]:
@@ -80,4 +86,3 @@ def get_date_range(
         raise InvalidDateRangeError()
 
     return start, end
-
