@@ -237,7 +237,7 @@ async def get_participant_settlement_status(
 
     Parameters:
     - event_id: UUID of the event.
-    - client: Injected async HTTP client for backend service communication.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
 
     Returns:
     - EventSettlementStatus model containing participant statuses and declared financial data.
@@ -254,7 +254,20 @@ async def get_owned_events(
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
         client: httpx.AsyncClient = Depends(get_http_client)
 ):
-    """Return events owned by a user within a date range."""
+    """
+    Retrieve events owned by a specific user within a given date range.
+
+    Fetches event metadata for which the specified user is the owner,
+    limited to events with opening dates between `start_date` and `end_date`.
+
+    Parameters:
+    - user_id: ID of the user.
+    - date_range: Tuple of start and end dates to filter events by their opening date.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - UserOwnedEventsResponse model containing a list of event metadata owned by the user.
+    """
     start, end = date_range
     url = f"users/{user_id}/events/owned"
     params = {"start_date": start.to_date_string(), "end_date": end.to_date_string()}
