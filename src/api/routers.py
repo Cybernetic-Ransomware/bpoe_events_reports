@@ -336,10 +336,24 @@ async def get_user_pending_invites(user_id: int, client: httpx.AsyncClient = Dep
     return models.UserPendingInvitesResponse.model_validate({"events": data_json})
 
 
-@router.get("/users/{user_id}/debts-summary")
+@router.get("/users/{user_id}/debts-summary", response_model=models.UserFinancialSummary)
 async def get_user_debts_summary(user_id: int, client: httpx.AsyncClient = Depends(get_http_client)):
-    """Return overall debt and credit summary for a user."""
-    raise NotImplementedError("Endpoint not implemented yet.")
+    """
+    Retrieve an aggregated debt and credit summary for the given user.
+
+    Fetches financial summary across all events where the user is a participant,
+    including total amounts paid and received, currency, time range, and per-event breakdown.
+
+    Parameters:
+    - user_id: ID of the user.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - UserFinancialSummary model containing totals and per-event financial breakdown.
+    """
+    url = f"users/{user_id}/debts-summary"
+    data_json = await fetch_from_service(client, url)
+    return models.UserFinancialSummary.model_validate(data_json)
 
 
 @router.get("/reports/validation-issues", include_in_schema=False)
