@@ -3,12 +3,13 @@ from uuid import UUID
 import httpx
 import pendulum
 from fastapi import APIRouter, Depends
+from pydantic import TypeAdapter
 from pydantic import ValidationError as PydanticValidationError
 
 from src.api.dependencies import fetch_from_service, get_date_range, get_event_id, get_http_client, verify_diagnostics_token
 from src.api.exceptions import (
+    EntityValidationError,
     ExternalServiceUnexpectedError,
-    ValidationError,
     ValueNotFoundError,
 )
 from src.config.conf_logger import parse_validation_issues_from_log, setup_logger
@@ -59,7 +60,7 @@ async def get_summary(
         try:
             models.EventNotFound.model_validate(data_json)
             raise ValueNotFoundError(event_id=event_id) from e
-        except ValidationError:
+        except EntityValidationError:
             raise ExternalServiceUnexpectedError(
                 service_name="DB Handler", original_error=e
             ) from e
@@ -94,11 +95,12 @@ async def get_user_event_summaries(
 
     data_json = await fetch_from_service(client, url, params=params)
 
-    summaries = [models.EventSummary.model_validate(item) for item in data_json]
+    list_of_summaries_validator = TypeAdapter(list[models.EventSummary])
+    summaries = list_of_summaries_validator.validate_python(data_json)
     return models.EventSummaryList(summaries=summaries)
 
 
-@router.get("/events/{event_id}/costs/details")
+@router.get("/events/{event_id}/costs/details", response_model=models.EventTransactionList)
 async def get_event_cost_details(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
     """
     Retrieve and return a list of validated cost breakdown for a specific event.
@@ -120,7 +122,7 @@ async def get_event_cost_details(event_id: UUID, client: httpx.AsyncClient = Dep
     return models.EventTransactionList(items=transactions)
 
 
-@router.get("/users/{user_id}/events/financial-summary")
+@router.get("/users/{user_id}/events/financial-summary", response_model=models.UserFinancialSummary)
 async def get_user_financial_summary(
         user_id: int,
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
@@ -224,7 +226,7 @@ async def get_event_locations(
     return models.EventLocationList(locations=locations)
 
 
-@router.get("/events/{event_id}/participants/settlement-status")
+@router.get("/events/{event_id}/participants/settlement-status", response_model=models.EventSettlementStatus)
 async def get_participant_settlement_status(
         event_id: UUID,
         client: httpx.AsyncClient = Depends(get_http_client)
@@ -248,7 +250,7 @@ async def get_participant_settlement_status(
     return models.EventSettlementStatus.model_validate(data_json)
 
 
-@router.get("/users/{user_id}/events/owned")
+@router.get("/users/{user_id}/events/owned", response_model=models.UserOwnedEventsResponse)
 async def get_owned_events(
         user_id: int,
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
@@ -277,7 +279,7 @@ async def get_owned_events(
     return models.UserOwnedEventsResponse.model_validate({"events": data_json})
 
 
-@router.get("/users/{user_id}/events/unsettled")
+@router.get("/users/{user_id}/events/unsettled", response_model=models.UserUnsettledEventsResponse)
 async def get_unsettled_events(
         user_id: int,
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
@@ -317,7 +319,7 @@ async def get_user_balance_details(
     raise NotImplementedError("Endpoint not implemented yet.")
 
 
-@router.get("/users/{user_id}/pending-invites")
+@router.get("/users/{user_id}/pending-invites", response_model=models.UserPendingInvitesResponse)
 async def get_user_pending_invites(user_id: int, client: httpx.AsyncClient = Depends(get_http_client)):
     """
     Retrieve events to which the user has been invited but has not responded.
