@@ -15,6 +15,8 @@ from src.api.models import (
     AcceptedParticipant,
     AcceptedParticipantList,
     EventData,
+    EventLocationList,
+    EventLocationOut,
     EventNotFound,
     EventSummary,
     EventSummaryList,
@@ -212,10 +214,29 @@ async def get_accepted_participants(
     return AcceptedParticipantList(participants=participants)
 
 
-@router.get("/events/{event_id}/locations")
-async def get_event_locations(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
-    """Return locations and timestamps associated with a specific event."""
-    raise NotImplementedError("Endpoint not implemented yet.")
+@router.get("/events/{event_id}/locations", response_model=EventLocationList)
+async def get_event_locations(
+    event_id: UUID,
+    client: httpx.AsyncClient = Depends(get_http_client)
+):
+    """
+    Retrieve and return locations associated with a specific event, including entry and exit timestamps.
+
+    Data is fetched from the DB Handler service and validated against the EventLocationOut model.
+    If the structure of the response is invalid or unexpected, an ExternalServiceUnexpectedError is raised.
+
+    Parameters:
+    - event_id: UUID of the event whose location history is to be fetched.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - An EventLocationList object containing a list of event locations with timestamps.
+    """
+    url = f"events/{event_id}/locations"
+    data_json = await fetch_from_service(client, url)
+
+    locations = [EventLocationOut.model_validate(item) for item in data_json]
+    return EventLocationList(locations=locations)
 
 
 @router.get("/events/{event_id}/participants/settlement-status")

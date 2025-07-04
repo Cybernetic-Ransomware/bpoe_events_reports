@@ -85,3 +85,18 @@ class InvitedParticipantList(BaseModel):
 
 class AcceptedParticipantList(BaseModel):
     participants: list[AcceptedParticipant]
+
+
+class EventLocationOut(BaseModel):
+    id: UUID
+    name: str
+    entered_at: datetime | None = None
+    exited_at: datetime | None = None
+    latitude: float | None = None
+    longitude: float | None = None
+
+    class Config:
+        from_attributes = True
+
+class EventLocationList(BaseModel):
+    locations: list[EventLocationOut]
