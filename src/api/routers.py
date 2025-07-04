@@ -18,6 +18,7 @@ from src.api.models import (
     EventLocationList,
     EventLocationOut,
     EventNotFound,
+    EventSettlementStatus,
     EventSummary,
     EventSummaryList,
     EventTransactionItem,
@@ -240,9 +241,28 @@ async def get_event_locations(
 
 
 @router.get("/events/{event_id}/participants/settlement-status")
-async def get_participant_settlement_status(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
-    """Return participants and their declared settlement shares and status."""
-    raise NotImplementedError("Endpoint not implemented yet.")
+async def get_participant_settlement_status(
+        event_id: UUID,
+        client: httpx.AsyncClient = Depends(get_http_client)
+):
+    """
+    Retrieve the settlement status of all participants for a specific event.
+
+    Fetches participant associations (acceptance + settlement), their declared info,
+    and total amount spent by each participant within a given event.
+
+    Parameters:
+    - event_id: UUID of the event.
+    - client: Injected async HTTP client for backend service communication.
+
+    Returns:
+    - EventSettlementStatus model containing participant statuses and declared financial data.
+    """
+    url = f"events/{event_id}/participants/settlement-status"
+    data_json = await fetch_from_service(client, url)
+
+    result = EventSettlementStatus.model_validate(data_json)
+    return result
 
 
 @router.get("/users/{user_id}/events/owned")

@@ -100,3 +100,20 @@ class EventLocationOut(BaseModel):
 
 class EventLocationList(BaseModel):
     locations: list[EventLocationOut]
+
+
+class ParticipantSettlementStatus(BaseModel):
+    participant_id: UUID
+    name: str
+    email: str
+    accepted: bool
+    accepted_at: datetime | None
+    settled: bool
+    settled_at: datetime | None
+    total_spent: float
+    currency: str = "PLN"
+
+class EventSettlementStatus(BaseModel):
+    event_id: UUID
+    participants: list[ParticipantSettlementStatus]
+
