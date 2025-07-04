@@ -4,9 +4,11 @@ from src.core.models.events import (
     EventLocationList,
     EventLocationOut,
     EventNotFound,
+    EventQuickInfo,
     EventSettlementStatus,
     EventSummary,
     EventSummaryList,
+    UserOwnedEventsResponse,
 )
 from src.core.models.participants import (
     AcceptedParticipant,
@@ -34,5 +36,7 @@ __all__ = [
     "InvitedParticipant",
     "EventTransactionItem",
     "EventTransactionList",
+    "EventQuickInfo",
     "UserFinancialSummary",
+    "UserOwnedEventsResponse",
 ]

@@ -62,3 +62,17 @@ class EventSettlementStatus(BaseModel):
     event_id: UUID
     participants: list[ParticipantSettlementStatus]
 
+
+class EventQuickInfo(BaseModel):
+    id: UUID
+    name: str
+    opened_at: datetime
+    closed_at: datetime | None
+    participant_count: int
+    location_count: int
+    transaction_count: int
+
+class UserOwnedEventsResponse(BaseModel):
+    events: list[EventQuickInfo]
+
+

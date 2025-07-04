@@ -146,8 +146,7 @@ async def get_user_financial_summary(
 
     data_json = await fetch_from_service(client, url, params=params)
 
-    summary = models.UserFinancialSummary.model_validate(data_json)
-    return summary
+    return models.UserFinancialSummary.model_validate(data_json)
 
 
 @router.get("/events/{event_id}/participants/invited", response_model=models.InvitedParticipantList)
@@ -246,8 +245,7 @@ async def get_participant_settlement_status(
     url = f"events/{event_id}/participants/settlement-status"
     data_json = await fetch_from_service(client, url)
 
-    result = models.EventSettlementStatus.model_validate(data_json)
-    return result
+    return models.EventSettlementStatus.model_validate(data_json)
 
 
 @router.get("/users/{user_id}/events/owned")
@@ -257,7 +255,13 @@ async def get_owned_events(
         client: httpx.AsyncClient = Depends(get_http_client)
 ):
     """Return events owned by a user within a date range."""
-    raise NotImplementedError("Endpoint not implemented yet.")
+    start, end = date_range
+    url = f"users/{user_id}/events/owned"
+    params = {"start_date": start.to_date_string(), "end_date": end.to_date_string()}
+
+    data_json = await fetch_from_service(client, url, params=params)
+
+    return models.UserOwnedEventsResponse.model_validate({"events": data_json})
 
 
 @router.get("/users/{user_id}/events/unsettled")
