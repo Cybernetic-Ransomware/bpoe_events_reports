@@ -11,23 +11,8 @@ from src.api.exceptions import (
     ValidationError,
     ValueNotFoundError,
 )
-from src.api.models import (
-    AcceptedParticipant,
-    AcceptedParticipantList,
-    EventData,
-    EventLocationList,
-    EventLocationOut,
-    EventNotFound,
-    EventSettlementStatus,
-    EventSummary,
-    EventSummaryList,
-    EventTransactionItem,
-    EventTransactionList,
-    InvitedParticipant,
-    InvitedParticipantList,
-    UserFinancialSummary,
-)
 from src.config.conf_logger import setup_logger
+from src.core import models
 
 logger = setup_logger(__name__, "api")
 
@@ -40,7 +25,7 @@ async def healthcheck():
     return {"status": "OK"}
 
 
-@router.get("/events/{event_id}/summary", response_model=EventSummary)
+@router.get("/events/{event_id}/summary", response_model=models.EventSummary)
 async def get_summary(
         event_id: UUID = Depends(get_event_id),
         client: httpx.AsyncClient = Depends(get_http_client),
@@ -67,12 +52,12 @@ async def get_summary(
 
     data_json = response.json()
     try:
-        data = EventData.model_validate(data_json)
-        return EventSummary(summary=data)
+        data = models.EventData.model_validate(data_json)
+        return models.EventSummary(summary=data)
 
     except PydanticValidationError as e:
         try:
-            EventNotFound.model_validate(data_json)
+            models.EventNotFound.model_validate(data_json)
             raise ValueNotFoundError(event_id=event_id) from e
         except ValidationError:
             raise ExternalServiceUnexpectedError(
@@ -80,7 +65,7 @@ async def get_summary(
             ) from e
 
 
-@router.get("/users/{user_id}/events/summary", response_model=EventSummaryList)
+@router.get("/users/{user_id}/events/summary", response_model=models.EventSummaryList)
 async def get_user_event_summaries(
     user_id: int,
     date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
@@ -109,8 +94,8 @@ async def get_user_event_summaries(
 
     data_json = await fetch_from_service(client, url, params=params)
 
-    summaries = [EventSummary.model_validate(item) for item in data_json]
-    return EventSummaryList(summaries=summaries)
+    summaries = [models.EventSummary.model_validate(item) for item in data_json]
+    return models.EventSummaryList(summaries=summaries)
 
 
 @router.get("/events/{event_id}/costs/details")
@@ -131,8 +116,8 @@ async def get_event_cost_details(event_id: UUID, client: httpx.AsyncClient = Dep
     url = f"events/{event_id}/costs/details"
     data_json = await fetch_from_service(client, url)
 
-    transactions = [EventTransactionItem.model_validate(item) for item in data_json]
-    return EventTransactionList(items=transactions)
+    transactions = [models.EventTransactionItem.model_validate(item) for item in data_json]
+    return models.EventTransactionList(items=transactions)
 
 
 @router.get("/users/{user_id}/events/financial-summary")
@@ -161,11 +146,11 @@ async def get_user_financial_summary(
 
     data_json = await fetch_from_service(client, url, params=params)
 
-    summary = UserFinancialSummary.model_validate(data_json)
+    summary = models.UserFinancialSummary.model_validate(data_json)
     return summary
 
 
-@router.get("/events/{event_id}/participants/invited", response_model=InvitedParticipantList)
+@router.get("/events/{event_id}/participants/invited", response_model=models.InvitedParticipantList)
 async def get_invited_participants(
     event_id: UUID,
     client: httpx.AsyncClient = Depends(get_http_client)
@@ -186,11 +171,11 @@ async def get_invited_participants(
     url = f"events/{event_id}/participants/invited"
     data_json = await fetch_from_service(client, url)
 
-    participants = [InvitedParticipant.model_validate(item) for item in data_json]
-    return InvitedParticipantList(participants=participants)
+    participants = [models.InvitedParticipant.model_validate(item) for item in data_json]
+    return models.InvitedParticipantList(participants=participants)
 
 
-@router.get("/events/{event_id}/participants/accepted", response_model=AcceptedParticipantList)
+@router.get("/events/{event_id}/participants/accepted", response_model=models.AcceptedParticipantList)
 async def get_accepted_participants(
     event_id: UUID,
     client: httpx.AsyncClient = Depends(get_http_client)
@@ -211,11 +196,11 @@ async def get_accepted_participants(
     url = f"events/{event_id}/participants/accepted"
     data_json = await fetch_from_service(client, url)
 
-    participants = [AcceptedParticipant.model_validate(item) for item in data_json]
-    return AcceptedParticipantList(participants=participants)
+    participants = [models.AcceptedParticipant.model_validate(item) for item in data_json]
+    return models.AcceptedParticipantList(participants=participants)
 
 
-@router.get("/events/{event_id}/locations", response_model=EventLocationList)
+@router.get("/events/{event_id}/locations", response_model=models.EventLocationList)
 async def get_event_locations(
     event_id: UUID,
     client: httpx.AsyncClient = Depends(get_http_client)
@@ -236,8 +221,8 @@ async def get_event_locations(
     url = f"events/{event_id}/locations"
     data_json = await fetch_from_service(client, url)
 
-    locations = [EventLocationOut.model_validate(item) for item in data_json]
-    return EventLocationList(locations=locations)
+    locations = [models.EventLocationOut.model_validate(item) for item in data_json]
+    return models.EventLocationList(locations=locations)
 
 
 @router.get("/events/{event_id}/participants/settlement-status")
@@ -261,7 +246,7 @@ async def get_participant_settlement_status(
     url = f"events/{event_id}/participants/settlement-status"
     data_json = await fetch_from_service(client, url)
 
-    result = EventSettlementStatus.model_validate(data_json)
+    result = models.EventSettlementStatus.model_validate(data_json)
     return result
 
 
