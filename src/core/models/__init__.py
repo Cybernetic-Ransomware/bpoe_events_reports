@@ -15,6 +15,7 @@ from src.core.models.participants import (
     AcceptedParticipant,
     AcceptedParticipantList,
     InvitedParticipantList,
+    UserPendingInvitesResponse,
 )
 from src.core.models.participants import Participant as InvitedParticipant
 from src.core.models.transactions import (
@@ -41,4 +42,5 @@ __all__ = [
     "UserFinancialSummary",
     "UserOwnedEventsResponse",
     "UserUnsettledEventsResponse",
+    "UserPendingInvitesResponse",
 ]

@@ -22,3 +22,14 @@ class InvitedParticipantList(BaseModel):
 
 class AcceptedParticipantList(BaseModel):
     participants: list[AcceptedParticipant]
+
+
+class UserPendingInvite(BaseModel):
+    event_id: UUID
+    name: str
+    opened_at: datetime
+    invited_by: str
+    invitation_sent_at: datetime
+
+class UserPendingInvitesResponse(BaseModel):
+    events: list[UserPendingInvite]

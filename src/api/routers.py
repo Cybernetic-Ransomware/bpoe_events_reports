@@ -292,7 +292,7 @@ async def get_unsettled_events(
     Parameters:
     - user_id: ID of the user.
     - date_range: Tuple of start and end dates to filter events by their opening date.
-    - client: Injected async HTTP client for backend service communication.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
 
     Returns:
     - UserUnsettledEventsResponse model containing event IDs, names, dates and participant-level settlement data.
@@ -319,8 +319,21 @@ async def get_user_balance_details(
 
 @router.get("/users/{user_id}/pending-invites")
 async def get_user_pending_invites(user_id: int, client: httpx.AsyncClient = Depends(get_http_client)):
-    """Return events to which the user was invited but hasn't responded."""
-    raise NotImplementedError("Endpoint not implemented yet.")
+    """
+    Retrieve events to which the user has been invited but has not responded.
+
+    Fetches all events where the user is listed as a participant but has not yet accepted the invitation.
+
+    Parameters:
+    - user_id: ID of the user.
+    - client: HTTP client used for communication with the DB Handler (injected dependency).
+
+    Returns:
+    - UserPendingInvitesResponse model containing list of events with pending invitations.
+    """
+    url = f"users/{user_id}/pending-invites"
+    data_json = await fetch_from_service(client, url)
+    return models.UserPendingInvitesResponse.model_validate({"events": data_json})
 
 
 @router.get("/users/{user_id}/debts-summary")
