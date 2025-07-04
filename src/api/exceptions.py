@@ -42,16 +42,20 @@ class CriticalDependencyError(ServerInitError):
             message += f" Original error: {str(original_error)}"
         super().__init__(code=503, message=message)
 
-class ValidationError(HTTPException):
-    def __init__(self, detail: str):
-        super().__init__(status_code=422, detail=detail)\
+class InvalidDiagnosticsTokenError(HTTPException):
+    def __init__(self):
+        super().__init__(status_code=403, detail="Invalid diagnostics token")
 
-class InvalidDateFormatError(ValidationError):
+class EntityValidationError(HTTPException):
+    def __init__(self, detail: str):
+        super().__init__(status_code=422, detail=detail)
+
+class InvalidDateFormatError(EntityValidationError):
     def __init__(self, field: str = "date", expected_format: str = "YYYY-MM-DD"):
         detail = f"Invalid {field} format. Expected format: {expected_format}."
         super().__init__(detail)
 
-class InvalidDateRangeError(ValidationError):
+class InvalidDateRangeError(EntityValidationError):
     def __init__(self, start_field: str = "start_date", end_field: str = "end_date"):
         detail = f"{start_field} must be earlier than or equal to {end_field}."
         super().__init__(detail)
