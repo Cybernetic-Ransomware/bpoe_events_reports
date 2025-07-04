@@ -283,9 +283,27 @@ async def get_unsettled_events(
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
         client: httpx.AsyncClient = Depends(get_http_client)
 ):
-    """Return events with incomplete settlements for a user."""
+    """
+    Retrieve events with incomplete settlements for a specific user.
+
+    Fetches events in which the user is a confirmed participant (accepted)
+    but has not completed their settlement process. Filters by event opening date.
+
+    Parameters:
+    - user_id: ID of the user.
+    - date_range: Tuple of start and end dates to filter events by their opening date.
+    - client: Injected async HTTP client for backend service communication.
+
+    Returns:
+    - UserUnsettledEventsResponse model containing event IDs, names, dates and participant-level settlement data.
+    """
     start, end = date_range
-    raise NotImplementedError("Endpoint not implemented yet.")
+    url = f"users/{user_id}/events/unsettled"
+    params = {"start_date": start.to_date_string(), "end_date": end.to_date_string()}
+
+    data_json = await fetch_from_service(client, url, params=params)
+
+    return models.UserUnsettledEventsResponse.model_validate({"events": data_json})
 
 
 @router.get("/users/{user_id}/balance-details")

@@ -9,6 +9,7 @@ from src.core.models.events import (
     EventSummary,
     EventSummaryList,
     UserOwnedEventsResponse,
+    UserUnsettledEventsResponse,
 )
 from src.core.models.participants import (
     AcceptedParticipant,
@@ -39,4 +40,5 @@ __all__ = [
     "EventQuickInfo",
     "UserFinancialSummary",
     "UserOwnedEventsResponse",
+    "UserUnsettledEventsResponse",
 ]

@@ -76,3 +76,21 @@ class UserOwnedEventsResponse(BaseModel):
     events: list[EventQuickInfo]
 
 
+class UserUnsettledEvent(BaseModel):
+    event_id: UUID
+    name: str
+    opened_at: datetime
+    closed_at: datetime | None
+    participant: Participant
+
+
+class UserUnsettledParticipantInfo(BaseModel):
+    user_id: int
+    full_name: str
+    accepted: bool
+    settled: bool
+    settled_at: datetime | None
+
+
+class UserUnsettledEventsResponse(BaseModel):
+    events: list[UserUnsettledEvent]
