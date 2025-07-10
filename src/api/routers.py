@@ -17,16 +17,20 @@ from src.core import models
 
 logger = setup_logger(__name__, "api")
 
-router = APIRouter()
+router_events = APIRouter()
+router_participants = APIRouter()
+router_admin = APIRouter()
+
+routers = {"events": router_events, "participants": router_participants, "admin": router_admin}
 
 
-@router.get("/", include_in_schema=False)
+@router_admin.get("/", include_in_schema=False)
 async def healthcheck():
     logger.info("Called second healthcheck [API router]")
     return {"status": "OK"}
 
 
-@router.get("/events/{event_id}/summary", response_model=models.EventSummary)
+@router_events.get("/events/{event_id}/summary", response_model=models.EventSummary)
 async def get_summary(
         event_id: UUID = Depends(get_event_id),
         client: httpx.AsyncClient = Depends(get_http_client),
@@ -66,7 +70,7 @@ async def get_summary(
             ) from e
 
 
-@router.get("/users/{user_id}/events/summary", response_model=models.EventSummaryList)
+@router_participants.get("/users/{user_id}/events/summary", response_model=models.EventSummaryList)
 async def get_user_event_summaries(
     user_id: int,
     date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
@@ -100,7 +104,7 @@ async def get_user_event_summaries(
     return models.EventSummaryList(summaries=summaries)
 
 
-@router.get("/events/{event_id}/costs/details", response_model=models.EventTransactionList)
+@router_events.get("/events/{event_id}/costs/details", response_model=models.EventTransactionList)
 async def get_event_cost_details(event_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
     """
     Retrieve and return a list of validated cost breakdown for a specific event.
@@ -122,7 +126,7 @@ async def get_event_cost_details(event_id: UUID, client: httpx.AsyncClient = Dep
     return models.EventTransactionList(items=transactions)
 
 
-@router.get("/users/{user_id}/events/financial-summary", response_model=models.UserFinancialSummary)
+@router_participants.get("/users/{user_id}/events/financial-summary", response_model=models.UserFinancialSummary)
 async def get_user_financial_summary(
         user_id: int,
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
@@ -151,7 +155,7 @@ async def get_user_financial_summary(
     return models.UserFinancialSummary.model_validate(data_json)
 
 
-@router.get("/events/{event_id}/participants/invited", response_model=models.InvitedParticipantList)
+@router_events.get("/events/{event_id}/participants/invited", response_model=models.InvitedParticipantList)
 async def get_invited_participants(
     event_id: UUID,
     client: httpx.AsyncClient = Depends(get_http_client)
@@ -176,7 +180,7 @@ async def get_invited_participants(
     return models.InvitedParticipantList(participants=participants)
 
 
-@router.get("/events/{event_id}/participants/accepted", response_model=models.AcceptedParticipantList)
+@router_events.get("/events/{event_id}/participants/accepted", response_model=models.AcceptedParticipantList)
 async def get_accepted_participants(
     event_id: UUID,
     client: httpx.AsyncClient = Depends(get_http_client)
@@ -201,7 +205,7 @@ async def get_accepted_participants(
     return models.AcceptedParticipantList(participants=participants)
 
 
-@router.get("/events/{event_id}/locations", response_model=models.EventLocationList)
+@router_events.get("/events/{event_id}/locations", response_model=models.EventLocationList)
 async def get_event_locations(
     event_id: UUID,
     client: httpx.AsyncClient = Depends(get_http_client)
@@ -226,7 +230,7 @@ async def get_event_locations(
     return models.EventLocationList(locations=locations)
 
 
-@router.get("/events/{event_id}/participants/settlement-status", response_model=models.EventSettlementStatus)
+@router_events.get("/events/{event_id}/participants/settlement-status", response_model=models.EventSettlementStatus)
 async def get_participant_settlement_status(
         event_id: UUID,
         client: httpx.AsyncClient = Depends(get_http_client)
@@ -250,7 +254,7 @@ async def get_participant_settlement_status(
     return models.EventSettlementStatus.model_validate(data_json)
 
 
-@router.get("/users/{user_id}/events/owned", response_model=models.UserOwnedEventsResponse)
+@router_participants.get("/users/{user_id}/events/owned", response_model=models.UserOwnedEventsResponse)
 async def get_owned_events(
         user_id: int,
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
@@ -279,7 +283,7 @@ async def get_owned_events(
     return models.UserOwnedEventsResponse.model_validate({"events": data_json})
 
 
-@router.get("/users/{user_id}/events/unsettled", response_model=models.UserUnsettledEventsResponse)
+@router_participants.get("/users/{user_id}/events/unsettled", response_model=models.UserUnsettledEventsResponse)
 async def get_unsettled_events(
         user_id: int,
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
@@ -308,7 +312,7 @@ async def get_unsettled_events(
     return models.UserUnsettledEventsResponse.model_validate({"events": data_json})
 
 
-@router.get("/users/{user_id}/balance-details")
+@router_participants.get("/users/{user_id}/balance-details")
 async def get_user_balance_details(
         user_id: int,
         date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
@@ -319,7 +323,7 @@ async def get_user_balance_details(
     raise NotImplementedError("Endpoint not implemented yet.")
 
 
-@router.get("/users/{user_id}/pending-invites", response_model=models.UserPendingInvitesResponse)
+@router_participants.get("/users/{user_id}/pending-invites", response_model=models.UserPendingInvitesResponse)
 async def get_user_pending_invites(user_id: int, client: httpx.AsyncClient = Depends(get_http_client)):
     """
     Retrieve events to which the user has been invited but has not responded.
@@ -338,7 +342,7 @@ async def get_user_pending_invites(user_id: int, client: httpx.AsyncClient = Dep
     return models.UserPendingInvitesResponse.model_validate({"events": data_json})
 
 
-@router.get("/users/{user_id}/debts-summary", response_model=models.UserFinancialSummary)
+@router_participants.get("/users/{user_id}/debts-summary", response_model=models.UserFinancialSummary)
 async def get_user_debts_summary(user_id: int, client: httpx.AsyncClient = Depends(get_http_client)):
     """
     Retrieve an aggregated debt and credit summary for the given user.
@@ -358,7 +362,7 @@ async def get_user_debts_summary(user_id: int, client: httpx.AsyncClient = Depen
     return models.UserFinancialSummary.model_validate(data_json)
 
 
-@router.get("/reports/validation-issues", include_in_schema=False)
+@router_admin.get("/reports/validation-issues", include_in_schema=False)
 async def get_reports_validation_issues(
     admin_token: str = Depends(verify_diagnostics_token),
 ):
