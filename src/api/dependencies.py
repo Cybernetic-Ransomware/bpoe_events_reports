@@ -73,7 +73,7 @@ def get_date_range(
         ...,
         description="End date or datetime in ISO 8601 format (e.g. '2025-07-10' or '2025-07-10T18:00:00')"
     )],
-) -> tuple[pendulum.Date, pendulum.Date]:
+) -> tuple[pendulum.DateTime, pendulum.DateTime]:
 
     try:
         start = pendulum.parse(start_date, strict=True)
