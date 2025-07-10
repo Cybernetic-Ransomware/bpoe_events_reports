@@ -72,8 +72,8 @@ async def get_summary(
 
 @router_participants.get("/users/{user_id}/events/summary", response_model=models.EventSummaryList)
 async def get_user_event_summaries(
-    user_id: int,
-    date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
+    user_id: UUID,
+    date_range: tuple[pendulum.Date, pendulum.Date] = Depends(get_date_range),
     client: httpx.AsyncClient = Depends(get_http_client),
 ):
     """
@@ -128,8 +128,8 @@ async def get_event_cost_details(event_id: UUID, client: httpx.AsyncClient = Dep
 
 @router_participants.get("/users/{user_id}/events/financial-summary", response_model=models.UserFinancialSummary)
 async def get_user_financial_summary(
-        user_id: int,
-        date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
+        user_id: UUID,
+        date_range: tuple[pendulum.Date, pendulum.Date] = Depends(get_date_range),
         client: httpx.AsyncClient = Depends(get_http_client)
 ):
     """
@@ -256,8 +256,8 @@ async def get_participant_settlement_status(
 
 @router_participants.get("/users/{user_id}/events/owned", response_model=models.UserOwnedEventsResponse)
 async def get_owned_events(
-        user_id: int,
-        date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
+        user_id: UUID,
+        date_range: tuple[pendulum.Date, pendulum.Date] = Depends(get_date_range),
         client: httpx.AsyncClient = Depends(get_http_client)
 ):
     """
@@ -285,8 +285,8 @@ async def get_owned_events(
 
 @router_participants.get("/users/{user_id}/events/unsettled", response_model=models.UserUnsettledEventsResponse)
 async def get_unsettled_events(
-        user_id: int,
-        date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
+        user_id: UUID,
+        date_range: tuple[pendulum.Date, pendulum.Date] = Depends(get_date_range),
         client: httpx.AsyncClient = Depends(get_http_client)
 ):
     """
@@ -314,8 +314,8 @@ async def get_unsettled_events(
 
 @router_participants.get("/users/{user_id}/balance-details")
 async def get_user_balance_details(
-        user_id: int,
-        date_range: tuple[pendulum.DateTime, pendulum.DateTime] = Depends(get_date_range),
+        user_id: UUID,
+        date_range: tuple[pendulum.Date, pendulum.Date] = Depends(get_date_range),
         client: httpx.AsyncClient = Depends(get_http_client)
 ):
     """Return detailed balance report for the user."""
@@ -324,7 +324,7 @@ async def get_user_balance_details(
 
 
 @router_participants.get("/users/{user_id}/pending-invites", response_model=models.UserPendingInvitesResponse)
-async def get_user_pending_invites(user_id: int, client: httpx.AsyncClient = Depends(get_http_client)):
+async def get_user_pending_invites(user_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
     """
     Retrieve events to which the user has been invited but has not responded.
 
@@ -343,7 +343,7 @@ async def get_user_pending_invites(user_id: int, client: httpx.AsyncClient = Dep
 
 
 @router_participants.get("/users/{user_id}/debts-summary", response_model=models.UserFinancialSummary)
-async def get_user_debts_summary(user_id: int, client: httpx.AsyncClient = Depends(get_http_client)):
+async def get_user_debts_summary(user_id: UUID, client: httpx.AsyncClient = Depends(get_http_client)):
     """
     Retrieve an aggregated debt and credit summary for the given user.
 

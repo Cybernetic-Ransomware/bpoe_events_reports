@@ -65,9 +65,15 @@ def get_event_id():
     )
 
 def get_date_range(
-    start_date: Annotated[str, Query(..., description="Start datetime in ISO 8601 format, e.g. 2025-07-01T15:00:00")],
-    end_date: Annotated[str, Query(..., description="End datetime in ISO 8601 format, e.g. 2025-07-10T18:00:00")],
-) -> tuple[pendulum.DateTime, pendulum.DateTime]:
+    start_date: Annotated[str, Query(
+        ...,
+        description="Start date or datetime in ISO 8601 format (e.g. '2025-07-01' or '2025-07-01T15:00:00')"
+    )],
+    end_date: Annotated[str, Query(
+        ...,
+        description="End date or datetime in ISO 8601 format (e.g. '2025-07-10' or '2025-07-10T18:00:00')"
+    )],
+) -> tuple[pendulum.Date, pendulum.Date]:
 
     try:
         start = pendulum.parse(start_date, strict=True)
