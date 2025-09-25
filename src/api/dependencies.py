@@ -1,15 +1,25 @@
 from collections.abc import AsyncGenerator
+from typing import Annotated, cast
 
 import httpx
-from fastapi import Path
+import pendulum
+from fastapi import Header, Path, Query
 
 from src.api.examples import summary_event_id_examples
 from src.api.exceptions import (
     ExternalServiceConnectionError,
     ExternalServiceNotFoundError,
     ExternalServiceUnexpectedError,
+    InvalidDateFormatError,
+    InvalidDateRangeError,
+    InvalidDiagnosticsTokenError,
 )
-from src.config.config import DB_HANDLER_URL
+from src.config.config import DB_HANDLER_URL, INTERNAL_DIAGNOSTICS_TOKEN
+
+
+async def verify_diagnostics_token(x_internal_token: str = Header(..., alias="X-Internal-Token")):
+    if x_internal_token != INTERNAL_DIAGNOSTICS_TOKEN:
+        raise InvalidDiagnosticsTokenError()
 
 
 async def get_http_client() -> AsyncGenerator[httpx.AsyncClient]:
@@ -19,7 +29,6 @@ async def get_http_client() -> AsyncGenerator[httpx.AsyncClient]:
 async def fetch_from_service(client: httpx.AsyncClient, url: str, params: dict | None = None):
     try:
         response = await client.get(url, params=params)
-        print("Request URL:", response.request.url, flush=True)
         response.raise_for_status()
     except httpx.HTTPStatusError as e:
         if e.response.status_code == 404:
@@ -54,3 +63,32 @@ def get_event_id():
         description="Unique identifier for the event",
         openapi_extra={"examples": summary_event_id_examples}
     )
+
+def get_date_range(
+    start_date: Annotated[str, Query(
+        ...,
+        description="Start date or datetime in ISO 8601 format (e.g. '2025-07-01' or '2025-07-01T15:00:00')"
+    )],
+    end_date: Annotated[str, Query(
+        ...,
+        description="End date or datetime in ISO 8601 format (e.g. '2025-07-10' or '2025-07-10T18:00:00')"
+    )],
+) -> tuple[pendulum.DateTime, pendulum.DateTime]:
+
+    try:
+        start = pendulum.parse(start_date, strict=True)
+        end = pendulum.parse(end_date, strict=True)
+
+        start = cast(pendulum.DateTime, start)
+        end = cast(pendulum.DateTime, end)
+
+        start = start.in_timezone('UTC')
+        end = end.in_timezone('UTC')
+
+    except Exception as e:
+        raise InvalidDateFormatError() from e
+
+    if start > end:
+        raise InvalidDateRangeError()
+
+    return start, end

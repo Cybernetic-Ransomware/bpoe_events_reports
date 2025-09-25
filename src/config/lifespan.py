@@ -5,7 +5,7 @@ from fastapi import FastAPI
 
 from src.api.exceptions import CriticalDependencyError
 from src.config.conf_logger import setup_logger
-from src.config.config import DB_HANDLER_URL, DEBUG
+from src.config.config import DB_HANDLER_URL, DEBUG, INTERNAL_DIAGNOSTICS_TOKEN
 
 DB_HANDLER_HEALTH_ENDPOINT = "/health"
 
@@ -29,5 +29,7 @@ async def lifespan(app: FastAPI):
         logger.info("DEBUG mode: Skipping DB Handler connection check during startup.")
 
     logger.info(f"Started with {DEBUG=}")
+    if DEBUG:
+        logger.info(f"Admin Diagnostic Randomized Token: {INTERNAL_DIAGNOSTICS_TOKEN}")
     yield
     logger.info("Application shutdown...")
