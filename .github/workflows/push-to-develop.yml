@@ -1,0 +1,44 @@
+name: push-to-develop.yml
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Semantic Release & Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install uv
+          uv add python-semantic-release build twine
+
+      - name: Semantic release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          uv run semantic-release publish
+
+      - name: Build package
+        run: |
+          uv run python -m build
+
+      - name: Publish to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          uv run twine upload \
+            --repository-url https://pypi.pkg.github.com/${{ github.repository_owner }} \
+            -u ${{ github.actor }} \
+            -p $GITHUB_TOKEN \
+            dist/*
